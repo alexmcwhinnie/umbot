@@ -2,8 +2,10 @@
   "name": "umbot",
   "version": "1.0.1",
   "dependencies": {
+    "async": "^2.0.1",
     "express": "^4.14.0",
     "pug": "^2.0.0-beta4",
+    "routes": "^2.1.0",
     "sqlite3": "~3.1.4"
   }
 }
