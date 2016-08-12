@@ -21,52 +21,52 @@ var async = require("async");
 	//     console.log("Umbrellas Out: " + outCount);
 	// });
 
-exports.count = function(req, res) {
+// exports.count = function(req, res) {
 
-	//Get Count of Umbrellas In
-	db.all("SELECT COUNT(id) as cnt FROM umbrellas WHERE status='in'",
-	  function(err, rows){
-	    inCount=rows[0].cnt;
-	    console.log("Umbrellas In: " + inCount);
-	});
+// 	//Get Count of Umbrellas In
+// 	db.all("SELECT COUNT(id) as cnt FROM umbrellas WHERE status='in'",
+// 	  function(err, rows){
+// 	    inCount=rows[0].cnt;
+// 	    console.log("Umbrellas In: " + inCount);
+// 	});
 
-	//Get Count of Umbrellas Out
-	db.all("SELECT COUNT(id) as cnt FROM umbrellas WHERE status='out'",
-	  function(err, rows){
-	    outCount=rows[0].cnt;
-	    console.log("Umbrellas Out: " + outCount);
-	});
+// 	//Get Count of Umbrellas Out
+// 	db.all("SELECT COUNT(id) as cnt FROM umbrellas WHERE status='out'",
+// 	  function(err, rows){
+// 	    outCount=rows[0].cnt;
+// 	    console.log("Umbrellas Out: " + outCount);
+// 	});
     
-    //Render Count
-	res.render('count', { _incount: inCount + ' in', _outcount: outCount + ' out'});
+//     //Render Count
+// 	res.render('count', { _incount: inCount + ' in', _outcount: outCount + ' out'});
 
-};
+// };
 
 
-exports.count2 = function(req, res) {
+// exports.count2 = function(req, res) {
 
-	async.series([
-	    function(){
-	    	//Get Count of Umbrellas In
-		db.all("SELECT COUNT(id) as cnt FROM umbrellas WHERE status='in'",
-		  function(err, rows){
-		    inCount=rows[0].cnt;
-		    console.log("Umbrellas In: " + inCount);
-		});
+// 	async.series([
+// 	    function(){
+// 	    	//Get Count of Umbrellas In
+// 		db.all("SELECT COUNT(id) as cnt FROM umbrellas WHERE status='in'",
+// 		  function(err, rows){
+// 		    inCount=rows[0].cnt;
+// 		    console.log("Umbrellas In: " + inCount);
+// 		});
 
-		//Get Count of Umbrellas Out
-		db.all("SELECT COUNT(id) as cnt FROM umbrellas WHERE status='out'",
-		  function(err, rows){
-		    outCount=rows[0].cnt;
-		    console.log("Umbrellas Out: " + outCount);
-		});
-	    },
-	    function(){
-	    	res.render('count', { _incount: inCount + ' in', _outcount: outCount + ' out'});
-		}
-	]);
+// 		//Get Count of Umbrellas Out
+// 		db.all("SELECT COUNT(id) as cnt FROM umbrellas WHERE status='out'",
+// 		  function(err, rows){
+// 		    outCount=rows[0].cnt;
+// 		    console.log("Umbrellas Out: " + outCount);
+// 		});
+// 	    },
+// 	    function(){
+// 	    	res.render('count', { _incount: inCount + ' in', _outcount: outCount + ' out'});
+// 		}
+// 	]);
 
-};
+// };
 
 // exports.count = function(req, res) {
 
@@ -83,7 +83,7 @@ exports.count2 = function(req, res) {
 // 	});
 // };
 
-exports.count3 = function(req, res) {
+exports.count = function(req, res) {
 
 var inCount;
 var outCount;
@@ -109,5 +109,21 @@ var outCount;
       console.log(results[1]);
     }
   })
+};
+
+
+
+exports.log = function(req, res, next) {
+
+  db.all('SELECT * FROM activity_log ORDER BY activity_id DESC', function(err, row) {
+    if(err !== null) {
+      //Next err is middleware? 
+      next(err);
+    }
+    else {
+    	//Looks like Node sends this as an object array? Will pick it apart in Pug
+    	res.render('log', {logrow: row});
+    }
+  });
 };
 

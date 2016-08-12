@@ -1,6 +1,19 @@
 extends layout
 
 block log
-	ul
-		li= message
+	ol#headers
+		li activity id
+		li time
+		li umbrella status
+		li umbrella id
+		li checked out by
+				
+	each val, index in logrow 
+
+		ol#rows
+			li= val.activity_id
+			li= val.time
+			li= val.activty_status
+			li= val.umbrella_id
+			li= val.user_id
 	

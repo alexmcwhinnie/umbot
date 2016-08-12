@@ -1,0 +1,14 @@
+ol li {
+	display: inline-block;
+	width: 15%;
+	padding:5px;
+}
+
+#headers {
+	font-weight: bold;
+	border-bottom: solid thin;
+}
+
+#rows {
+	background-color: #eee;
+}

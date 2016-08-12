@@ -5,10 +5,11 @@ var app 		= express();
 
 app.set('views', __dirname + '/views');
 app.set('view engine', 'pug');
+app.use(express.static(__dirname + '/public'));
 
 //Routes. These are detailed in routes/umbrellas.js
 app.get('/', umbrellas.count);
-app.get('/test', umbrellas.count3);
+app.get('/log', umbrellas.log);
 // app.get('/umbrellas/:id', umbrellas.findById);
 
 app.listen(3000);
