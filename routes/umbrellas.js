@@ -115,7 +115,7 @@ var outCount;
 
 exports.log = function(req, res, next) {
 
-  db.all('SELECT * FROM activity_log ORDER BY activity_id DESC', function(err, row) {
+  db.all('SELECT * FROM activity_log ORDER BY id DESC', function(err, row) {
     if(err !== null) {
       //Next err is middleware? 
       next(err);
@@ -125,5 +125,22 @@ exports.log = function(req, res, next) {
     	res.render('log', {logrow: row});
     }
   });
+};
+
+
+
+exports.checkout = function(req, res, next) {
+
+
+  var current_user = 'Alex';
+  var umbrella_out = 2;
+
+  var stmt = db.prepare("INSERT INTO activity_log VALUES (null, datetime('now', 'localtime'), ?, ?, ?)");
+          stmt.run('In', umbrella_out, current_user);
+        
+      stmt.finalize();
+
+      //also need to update umbrellas table with status of umbrella
+
 };
 

@@ -12,3 +12,31 @@ ol li {
 #rows {
 	background-color: #eee;
 }
+
+ul {
+	padding: 0px;
+	margin: 0px, 0px, 10px, 0px;
+}
+
+ul li {
+	display: inline-block;
+	margin-right: 5px;
+	text-align: center;
+	
+}
+
+ul li a:link, ul li a:visited {
+	display: inline-block;
+	width: 80px;
+	background: #ffa500;
+	color: white;
+	padding: 10px;
+	text-decoration: none;
+	
+}
+
+
+ul li a:hover {
+	background: #e59400;
+	text-decoration: none;
+}

@@ -1,19 +1,20 @@
 extends layout
 
 block log
+
 	ol#headers
-		li activity id
-		li time
-		li umbrella status
-		li umbrella id
-		li checked out by
+		li Activity ID
+		li Time
+		li Umbrella Status
+		li Umbrella ID
+		li Checked Out By
 				
 	each val, index in logrow 
 
 		ol#rows
-			li= val.activity_id
+			li= val.id
 			li= val.time
-			li= val.activty_status
+			li= "Checked " + val.activity_status
 			li= val.umbrella_id
-			li= val.user_id
+			li= val.user_name
 	
