@@ -10,6 +10,7 @@ app.use(express.static(__dirname + '/public'));
 //Routes. These are detailed in routes/umbrellas.js
 app.get('/', umbrellas.count);
 app.get('/log', umbrellas.log);
+app.get('/weather', umbrellas.weather);
 app.get('/checkout', umbrellas.checkout);
 //app.get('/signup', umbrellas.signup);
 //app.get('/login', umbrellas.login);

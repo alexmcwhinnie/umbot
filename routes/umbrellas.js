@@ -144,3 +144,44 @@ exports.checkout = function(req, res, next) {
 
 };
 
+exports.weather = function(req, res, next) {
+
+  //https://www.npmjs.com/package/forecast
+  //https://developer.forecast.io/docs/v2
+
+  // Require the module 
+  var Forecast = require('forecast');
+   
+  // Initialize 
+  var forecast = new Forecast({
+    service: 'forecast.io',
+    key: '4e777bbb1f972c436be40b9bacb59bf7',
+    units: 'f', // Only the first letter is parsed 
+    cache: true,      // Cache API requests? 
+    ttl: {            // How long to cache requests. Uses syntax from moment.js: http://momentjs.com/docs/#/durations/creating/ 
+      minutes: 5,
+      seconds: 0
+      }
+  });
+   
+  // Retrieve weather information from coordinates (Sydney, Australia) 
+  forecast.get([44.9778, -93.2650], function(err, weather) {
+    if(err) return console.dir(err);
+    var summary = weather.hourly.summary;
+    var temp = weather.currently.temperature;
+    var precipProbability = weather.currently.precipProbability;
+    var nearestStormDistance = weather.currently.nearestStormDistance;
+    console.log("Summary: " + summary);
+    console.log("Current Temperature: " + temp);
+    console.log("Precipitation Probability: " + precipProbability + "%");
+    console.log("Nearest Storm Distance: " + nearestStormDistance + " miles");
+
+    res.render('weather', {_temp: temp, _summary: summary, _precip: precipProbability, _storm: nearestStormDistance,});
+  });
+   
+  // // Retrieve weather information, ignoring the cache 
+  // forecast.get([44.9778, -93.2650], true, function(err, weather) {
+  //   if(err) return console.dir(err);
+  //   console.dir(weather);
+  // });
+};
