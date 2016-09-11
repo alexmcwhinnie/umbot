@@ -1,0 +1,22 @@
+extends base
+
+block body
+
+    div.jumbotron
+      h2 Hello!
+
+      if user
+        p Welcome, #{user.givenName}
+        
+        form(action='/logout', method='POST')
+          button.btn.btn-default(type="submit") Logout
+        p Dashboard stuff goes here
+
+      else
+        p Welcome to Umbot, sign up to stay dry.
+        p
+          a.btn.btn-primary(href="/login") Login now
+        p
+          span.small Don't have an account?
+          span &nbsp;
+          a.small(href="/register") Register now
