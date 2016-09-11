@@ -83,6 +83,35 @@ var async = require("async");
 // 	});
 // };
 
+exports.dashboard = function(req, res) {
+
+var inCount;
+var outCount;
+
+  async.parallel([
+    function (callback) {
+
+      //Get in count
+      db.get("SELECT COUNT(id) as cnt FROM umbrellas WHERE status='in'", callback);
+    },
+    function (callback) {
+
+      //Get out count
+      db.get("SELECT COUNT(id) as cnt FROM umbrellas WHERE status='out'", callback);
+    }
+  ], function (error, results) {
+
+    if (error) {
+      console.log('error');
+    } else {
+      res.render('dashboard', { _incount: results[0].cnt + ' in', _outcount: results[1].cnt + ' out'});
+      console.log(inCount);
+      console.log(results[1]);
+    }
+  })
+};
+
+
 exports.count = function(req, res) {
 
 var inCount;
