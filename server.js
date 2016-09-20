@@ -3,7 +3,6 @@ var express 	= require('express'),
 var path    	= require('path');
 var stormpath = require('express-stormpath');
 var pug = require('pug');
-
 var app 		= express();
 
 
@@ -16,6 +15,7 @@ app.use(express.static(__dirname + '/public'));
 app.get('/log', umbrellas.log);
 app.get('/weather', umbrellas.weather);
 app.get('/checkout', umbrellas.checkout);
+app.get('/hardware', umbrellas.hardware);
 //app.get('/signup', umbrellas.signup);
 //app.get('/login', umbrellas.login);
 //app.get('/404', umbrellas.404);

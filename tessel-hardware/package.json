@@ -1,0 +1,9 @@
+{
+  "name": "tessel-hardware",
+  "version": "1.0.1",
+  "dependencies": {
+    "express": "^4.14.0",
+    "express-stormpath": "^3.1.5",
+    "tessel": "^0.3.24"
+  }
+}

@@ -83,6 +83,10 @@ var async = require("async");
 // 	});
 // };
 
+exports.hardware = function(req, res) {
+  
+};
+
 exports.dashboard = function(req, res) {
 
 var inCount;
