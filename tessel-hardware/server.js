@@ -41,7 +41,8 @@ io.on('connection', function(socket){
 	console.log('socket connected...');
   socket.on('chat message', function(data){
     console.log('message from client: ' + data.my);
-    sound3.play();  // Play intro
+    //sound3.play();  // Play intro
+    checkout2();
 
   });
 });
@@ -67,6 +68,43 @@ function solenoid(){
 function solenoid2(){
 	pin2.output(0);
 };
+
+function checkout() {
+	sound1.play();
+	solenoid();  // turn pin high (on)
+	var blink = setInterval(blinking ,500);
+	setTimeout(function( ) { clearInterval( blink ); }, 8000);
+
+	setTimeout(function(){
+		// Hurry
+		sound2.play();
+		var blink = setInterval(blinking ,350);
+		setTimeout(function( ) { clearInterval( blink ); }, 2700);
+	}, 8000);
+	// Lock
+	setTimeout(function(){
+		solenoid2();
+	}, 10700);
+}
+
+function checkout2() {
+	sound1.play();
+	solenoid();  // turn pin high (on)
+	var blink = setInterval(blinking ,500);
+	setTimeout(function( ) { clearInterval( blink ); }, 8000);
+	setTimeout(function(){
+		// Hurry
+		sound2.play();
+		var blink = setInterval(blinking ,350);
+		setTimeout(function( ) { clearInterval( blink ); }, 2700);
+	}, 8000);
+	// Lock
+	setTimeout(function(){
+		solenoid2();
+	}, 10700);
+}
+
+
 
 // Checkout
 app.get('/checkout', function(req, res) {
@@ -94,26 +132,26 @@ http.listen(80, function () {
   console.log('Hardware Online');
 });
 
-// Checkout TEST ///////////////////////////////////////////////////////
-app.get('/checkout2/:id', function(req, res) {
-	console.log("checkout v2");
+// // Checkout TEST ///////////////////////////////////////////////////////
+// app.get('/checkout2/:id', function(req, res) {
+// 	console.log("checkout v2");
 
-	if (req.params.id == "1") {
-		// OK
-		res.send('Take an umbrella');
-		sound1.play();
-		solenoid();  // turn pin high (on)
-		var blink = setInterval(blinking ,500);
-		setTimeout(function( ) { clearInterval( blink ); }, 8000);
+// 	if (req.params.id == "1") {
+// 		// OK
+// 		res.send('Take an umbrella');
+// 		sound1.play();
+// 		solenoid();  // turn pin high (on)
+// 		var blink = setInterval(blinking ,500);
+// 		setTimeout(function( ) { clearInterval( blink ); }, 8000);
 
-		setTimeout(function(){
-			// Hurry
-			sound2.play();
-			var blink = setInterval(blinking ,350);
-			setTimeout(function( ) { clearInterval( blink ); }, 2700);
-		}, 8000);
-	}
-});
+// 		setTimeout(function(){
+// 			// Hurry
+// 			sound2.play();
+// 			var blink = setInterval(blinking ,350);
+// 			setTimeout(function( ) { clearInterval( blink ); }, 2700);
+// 		}, 8000);
+// 	}
+// });
 
 
 
