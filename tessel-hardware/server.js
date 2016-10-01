@@ -32,8 +32,20 @@ var intro = path.join(__dirname, '/public/intro.mp3');
 var sound3 = new av.Player(intro);
 
 pin.output(1);  // turn pin high (on)
-sound3.play();  // Play intro
+//sound3.play();  // Play intro
 
+// Socket integration test /////////////////////////////// (please work!)
+var data = 'boop boop, im the server';
+//does 'socket.emit' send, and 'socket.on' receive?
+io.on('connection', function(socket){
+	console.log('socket connected...');
+  socket.on('chat message', function(data){
+    console.log('message from client: ' + data.my);
+    sound3.play();  // Play intro
+
+  });
+});
+//////////////////////////////////////////////////////////
 
 
 app.get('/', function (req, res) {
