@@ -1,3 +1,6 @@
+// NODE CLIENT
+
+require('dotenv').config();
 var express 	= require('express'),
 	umbrellas 	= require('./routes/umbrellas');
 var path    	= require('path');
@@ -9,6 +12,14 @@ var app 		= express();
 app.set('views', __dirname + '/views');
 app.set('view engine', 'pug');
 app.use(express.static(__dirname + '/public'));
+
+
+app.use(function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  next();
+});
+
 
 //Routes. These are detailed in routes/umbrellas.js
 //app.get('/', umbrellas.count);
@@ -63,8 +74,19 @@ app.get('/', stormpath.getUser, umbrellas.dashboard, function(req, res) {
   });
 });
 
+
+
+// SOME SOCKET.IO TESTS //////////////////////////////////////////////////////////
+
+
+
+//////////////////////////////////////////////////////////////////////////////////
+
+
+
 app.on('stormpath.ready',function(){
   console.log('Umbot Ready');
 });
 
 app.listen(3000);
+
