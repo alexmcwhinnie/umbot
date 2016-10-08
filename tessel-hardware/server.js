@@ -17,6 +17,7 @@ var test = 'ABCDEFGHIJ';
 var pin = tessel.port.A.pin[4];
 var pin2 = tessel.port.A.pin[5];
 var rfid = rfidlib.use(tessel.port['A']); 
+var rfid2 = rfidlib.use(tessel.port['B']); 
 
 
 var checkout = path.join(__dirname, '/public/checkout.mp3');
@@ -33,42 +34,65 @@ pin.output(1);  // turn pin high (on)
 var checkingOut = false;
 var UID_data = null;
 
-// RFID Integration test /////////////////////////////// 
-rfid.on('ready', function (version) {
-  console.log('Ready to read RFID card');
+// // // check in RFID Integration test /////////////////////////////// 
+// rfid2.on('ready', function (version) {
+//   console.log('Ready to read check in RFID card');
 
-  rfid.on('data', function(card) {
-    console.log('UID:', card.uid.toString('hex'));
+//   rfid2.on('data', function(card) {
+//     console.log('check in UID:', card.uid.toString('hex'));
     
-    // When RFID card is scanned, send UID to client. Client will then put in DB. Prep UID for socket.io
-    UID_data = card.uid.toString('hex');
-  });
-});
+//     // Need to send this to the client when swiped. 
+//     //UID_data2 = card.uid.toString('hex');
+//     //Then send back a chime if return successful?
+//   });
+// });
 
-rfid.on('error', function (err) {
-  console.error(err);
-});
-//////////////////////////////////////////////////////////
+// rfid.on('error', function (err) {
+//   console.error(err);
+// });
+// // //////////////////////////////////////////////////////////
 
-// Socket integration test /////////////////////////////// 
 
-//does 'socket.emit' send, and 'socket.on' receive?
+
 io.on('connection', function(socket){
 	console.log('socket connected...');
+    
+    // Send checked out umbrella UID to client for DB insertion
+    rfid.on('data', function(card) {
+      UID_data = card.uid.toString('hex');
+      socket.emit('uid', { uid: UID_data });
+      console.log(UID_data);
+      solenoid2();
+    });
+ 
+ 	// Send checked in umbrella UID to client for DB insertion
+ 	rfid2.on('data', function(card) {
+	    console.log('check in UID:', card.uid.toString('hex'));
+  	});
 
-	// Send UID to client when RFID is swiped. How? <----------------------- THIS LINE IS KEY
-	socket.emit('uid', { uid: UID_data });
-
- 	socket.on('chat message', function(data){
+	socket.on('chat message', function(data){
 	    console.log('message from client: ' + data.my);
 	    checkout2();
-
-		// Send UID to client when RFID is swiped. How?
-		socket.emit('uid', { uid: UID_data });
-
-  });
+    });
 });
-//////////////////////////////////////////////////////////
+
+// // Socket integration test /////////////////////////////// 
+// io.on('connection', function(socket){
+// 	console.log('socket connected...');
+
+// 	// Send UID to client when RFID is swiped. How? <----------------------- THIS LINE IS KEY
+// 	socket.emit('uid', { uid: UID_data });
+
+//  	socket.on('chat message', function(data){
+// 	    console.log('message from client: ' + data.my);
+// 	    checkout2();
+
+// 		// Send UID to client when RFID is swiped. How?
+// 		socket.emit('uid', { uid: UID_data });
+
+//   });
+// });
+// //////////////////////////////////////////////////////////
 
 
 

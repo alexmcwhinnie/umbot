@@ -4,7 +4,8 @@ var pug = require('pug');
 var db = new sqlite3.Database('umbot.db');
 var async = require("async");
 
-
+var current_user;
+var UID;
 
 
 	// //Get Count of Umbrellas In
@@ -107,10 +108,21 @@ var outCount;
 
     if (error) {
       console.log('error');
+      loggedInUser = null;
     } else {
       res.render('dashboard', { _incount: results[0].cnt + ' in', _outcount: results[1].cnt + ' out'});
       console.log(inCount);
       console.log(results[1]);
+
+      if (req.user) {
+        current_user = req.user.email;
+      // get logged in user test
+      // only do this if RFID code positive.
+      checkOutUmbrella();
+      console.log('db should have been updated to show '+ current_user + ' checked out an umbrella ' + UID);
+    } else {
+      console.log('no one logged in');
+    }
     }
   })
 };
@@ -140,6 +152,8 @@ var outCount;
       res.render('count', { _incount: results[0].cnt + ' in', _outcount: results[1].cnt + ' out'});
       console.log(inCount);
       console.log(results[1]);
+
+
     }
   })
 };
@@ -159,6 +173,23 @@ exports.log = function(req, res, next) {
     }
   });
 };
+
+
+
+// Update activity table with checked out umbrella and user's name
+function checkOutUmbrella(){
+  // Query DB to find out which umbrella number the UID matches
+  // db.all("SELECT COUNT(id) as cnt FROM umbrellas WHERE status='out'",
+  //   function(err, rows){
+  //     outCount=rows[0].cnt;
+  //     console.log("Umbrellas Out: " + outCount);
+  // });
+
+  var umbrella_out = 2; // <---this needs to be dynamic
+  var stmt = db.prepare("INSERT INTO activity_log VALUES (null, datetime('now', 'localtime'), ?, ?, ?)");
+          stmt.run('Out', umbrella_out, current_user);
+      stmt.finalize();
+}
 
 
 

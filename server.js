@@ -76,17 +76,10 @@ app.get('/', stormpath.getUser, umbrellas.dashboard, function(req, res) {
 
 
 
-// SOME SOCKET.IO TESTS //////////////////////////////////////////////////////////
-
-
-
-//////////////////////////////////////////////////////////////////////////////////
-
-
-
 app.on('stormpath.ready',function(){
   console.log('Umbot Ready');
 });
 
 app.listen(3000);
+
 
