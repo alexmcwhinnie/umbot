@@ -1,11 +1,9 @@
 $(document).ready(function(){
-
 	var socket = io.connect("http://73.94.56.102");
-
+		//do i need the socket on?
 		socket.on('uid', function (data) {
-			UID = data.uid;
-	   		console.log('UID: ' + UID);
-	   		//console.log('username: ' + current_user);
+			// UID = data.uid;
+	  		// console.log('UID from scripts: ' + UID);
 
 	  	});
 

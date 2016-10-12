@@ -7,7 +7,7 @@ var path    	= require('path');
 var stormpath = require('express-stormpath');
 var pug = require('pug');
 var app 		= express();
-
+//var current_user;
 
 app.set('views', __dirname + '/views');
 app.set('view engine', 'pug');
@@ -19,6 +19,9 @@ app.use(function(req, res, next) {
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
   next();
 });
+
+
+
 
 
 //Routes. These are detailed in routes/umbrellas.js
@@ -67,11 +70,12 @@ app.use(stormpath.init(app, {
 }));
 //////////////////////////////////////////////////////////////////////////////////
 
-
+// Load route and Views
 app.get('/', stormpath.getUser, umbrellas.dashboard, function(req, res) {
   res.render('dashboard', {
     title: 'Welcome'
   });
+  //current_user = req.user.email;
 });
 
 
