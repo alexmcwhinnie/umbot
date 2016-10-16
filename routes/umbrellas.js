@@ -8,6 +8,7 @@ var socket = require('socket.io-client')('http://73.94.56.102');
 var current_user;
 var UID;
 var umbrella_out;
+var umbrella_in;
 
 getUID();
 
@@ -101,12 +102,12 @@ var outCount;
     function (callback) {
 
       //Get in count
-      db.get("SELECT COUNT(id) as cnt FROM umbrellas WHERE status='in'", callback);
+      db.get("SELECT COUNT(id) as cnt FROM umbrellas WHERE status='IN'", callback);
     },
     function (callback) {
 
       //Get out count
-      db.get("SELECT COUNT(id) as cnt FROM umbrellas WHERE status='out'", callback);
+      db.get("SELECT COUNT(id) as cnt FROM umbrellas WHERE status='OUT'", callback);
     }
   ], function (error, results) {
 
@@ -114,7 +115,7 @@ var outCount;
       console.log('error');
       //loggedInUser = null;
     } else {
-      res.render('dashboard', { _incount: results[0].cnt + ' in', _outcount: results[1].cnt + ' out'});
+      res.render('dashboard', { _incount: results[0].cnt + ' IN', _outcount: results[1].cnt + ' OUT'});
       console.log(inCount);
       console.log(results[1]);
 
@@ -142,19 +143,19 @@ var outCount;
     function (callback) {
 
       //Get in count
-      db.get("SELECT COUNT(id) as cnt FROM umbrellas WHERE status='in'", callback);
+      db.get("SELECT COUNT(id) as cnt FROM umbrellas WHERE status='IN'", callback);
     },
     function (callback) {
 
       //Get out count
-      db.get("SELECT COUNT(id) as cnt FROM umbrellas WHERE status='out'", callback);
+      db.get("SELECT COUNT(id) as cnt FROM umbrellas WHERE status='OUT'", callback);
     }
   ], function (error, results) {
 
     if (error) {
       console.log('error');
     } else {
-      res.render('count', { _incount: results[0].cnt + ' in', _outcount: results[1].cnt + ' out'});
+      res.render('count', { _incount: results[0].cnt + ' IN', _outcount: results[1].cnt + ' OUT'});
       console.log(inCount);
       console.log(results[1]);
 
@@ -190,6 +191,8 @@ function checkOutUmbrella(){
   // Do we have a current user?
   console.log(current_user);
 
+  // Should I check somewhere here if the user already has an umbrella checked out?
+
   // Match the UID to the umbrella ID
   db.all("SELECT * FROM umbrellas", function(err, umbrella){
     for(i = 0; i < 4; i++) {
@@ -223,8 +226,51 @@ function checkOutUmbrella(){
 
 // Update activity table with checked in umbrella and user's name
 function checkInUmbrella(){
+  // Get UID (this is being done by sockets and saved to UID variable)
+  // Determine who checked it out (not who is logged in) from umbrellas table?
+  // Make sure the status is 'OUT'
+  // Determine corresponding umbrella ID
+    // Match the UID to the umbrella ID
+  db.all("SELECT * FROM umbrellas", function(err, umbrella){
+    for(i = 0; i < 4; i++) {
+      if (umbrella[i].uid == UID) {  
+        umbrella_in = umbrella[i].id
+        console.log(umbrella_in);
+
+        // If umbrella is in, do the following (safeguard)
+        if (umbrella[i].status == 'OUT') {
+
+          //Print pre-log umbrella status to console
+          console.log("umbrella " + umbrella[i].id + " has a status of " + umbrella[i].status);
+
+          //enter activity line in activity log table
+          var stmt = db.prepare("INSERT INTO activity_log VALUES (null, datetime('now', 'localtime'), ?, ?, ?)");
+          stmt.run('IN', umbrella_in, 'users email');  //<---- replace with variable that has id'ed who previously checked out umby
+          stmt.finalize();
+          console.log("umbrella activity log updated");
+
+          //update umbrella status to 'out' in umbrellas table
+          var stmt2 = db.prepare("UPDATE umbrellas SET status = 'IN' WHERE id = " + umbrella_in);
+          stmt2.run();
+          stmt2.finalize();
+          console.log("umbrella table updated");     
+
+        }
+      }
+    }    
+  });
+
+  // Insert activity_log (id, current date/time, user, status = IN) update
+  //enter activity line in activity log table
+  // var stmt = db.prepare("INSERT INTO activity_log VALUES (null, datetime('now', 'localtime'), ?, ?, ?)");
+  // stmt.run('IN', umbrella_out, current_user);
+  // stmt.finalize();
+  // console.log("umbrella activity log updated");
+
+  // Insert umbrellas (status = IN) update 
 }
 
+// OLD
 exports.checkout = function(req, res, next) {
 
 
@@ -287,7 +333,7 @@ exports.weather = function(req, res, next) {
 function getUID() {
   // Get UID from checkout reader
   socket.on('connect', function(){});
-  // IN
+  
   socket.on('uid', function(data){
     var UID_data = data.uid;
     var UID_split = UID_data.split('@');
@@ -295,6 +341,7 @@ function getUID() {
 
     if (UID_split[0] == 'in') {
       //DO CHECKIN STUFF
+      checkInUmbrella();
       console.log('UID in: ' + UID);
     }
 
@@ -303,17 +350,7 @@ function getUID() {
       checkOutUmbrella();
       console.log('UID out: ' + UID);
     }
-
   });
-
-  // // OUT
-  // socket.on('uid-out', function(data){
-  //   UID = data.uidout;
-
-  //   //if UID indicates checked out- do following
-  //   console.log('UID OUT: ' + UID);
-
-  // });
 
   socket.on('disconnect', function(){});
   ///////////////////////////////////////
