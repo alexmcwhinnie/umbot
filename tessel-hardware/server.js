@@ -6,7 +6,6 @@ var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var rfidlib = require('rfid-pn532');
 
-
 app.use(function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
@@ -16,6 +15,7 @@ app.use(function(req, res, next) {
 var test = 'ABCDEFGHIJ';
 var pin = tessel.port.A.pin[4];
 var pin2 = tessel.port.A.pin[5];
+var pin3 = tessel.port.B.pin[4]; //RED
 var rfid = rfidlib.use(tessel.port['A']); 
 var rfid2 = rfidlib.use(tessel.port['B']); 
 
@@ -54,9 +54,40 @@ io.on('connection', function(socket){
       console.log(UID_data);
   	});
 
-	socket.on('chat message', function(data){
-	    console.log('message from client: ' + data.my);
-	    checkout2();
+ 	// LISTEN TO SCRIPTS.JS & SEND REQUEST TO UMBRELLAS.JS FOR MULTIPLE UMBRELLA DB CHECK
+	socket.on('message', function(data){
+
+		// Optional message coming from scripts.js
+	    if (data.my == 'data, yo') { 
+	    	console.log("request to unlock receptacle from scripts.js client");
+
+	    	// Tell umbrellas.js that someone has requested an umbrella
+	    	io.emit('test', { test: 'checkout' });
+	    } 
+	    // // Error for trying to check out a second umbrella. Coming from umbrellas.js
+	    // if (data.error1 == 'error, yo') {
+	    // 	console.log('errors! red light');
+
+	    // } else {
+	    // 	// If there were no errors, fire checkout function
+	    // 	//checkout2();
+	    // }
+
+    });
+
+	// UNLOCK OR NOT
+    socket.on('status', function(data){
+
+		// Optional message coming from scripts.js
+	    if (data.unlock == 'false') { 
+	    	console.log("stay locked, RED LED");
+	    	pin3.output(1);  // turn RED LED on
+	    	pin1.output(0);  // turn GREEN LED off
+	    } else if (data.unlock == 'true') {
+	    	checkout2();
+	    	console.log('unlock/checkout');
+	    }
+
     });
 });
 

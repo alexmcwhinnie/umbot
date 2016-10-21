@@ -9,7 +9,7 @@ $(document).ready(function(){
 
 	  $('.checkout').click(function() {
 		console.log('button pressed');
-	    socket.emit('chat message', { my: 'data, yo' });
+	    socket.emit('message', { my: 'data, yo' });
 	  });
 
 });

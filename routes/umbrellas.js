@@ -9,6 +9,7 @@ var current_user;
 var UID;
 var umbrella_out;
 var umbrella_in;
+var secondUmbrella = false;
 
 getUID();
 
@@ -124,8 +125,8 @@ var outCount;
       // get logged in user test
       // only do this if RFID code positive.
 
-        checkOutUmbrella();
-        console.log('db should have been updated to show '+ current_user + ' checked out an umbrella ' + UID);
+        //checkOutUmbrella();
+        //console.log('db should have been updated to show '+ current_user + ' checked out an umbrella ' + UID);
     } else {
       console.log('no one logged in');
     }
@@ -195,32 +196,53 @@ function checkOutUmbrella(){
 
   // Match the UID to the umbrella ID
   db.all("SELECT * FROM umbrellas", function(err, umbrella){
-    for(i = 0; i < 4; i++) {
-      if (umbrella[i].uid == UID) {  
-        umbrella_out = umbrella[i].id
-        console.log(umbrella_out);
+        // secondUmbrella = false;
 
-        // If umbrella is in, do the following
-        if (umbrella[i].status == 'IN') {
+    // for(i = 0; i < 4; i++) {
+    //   // Make sure user doesn't already have an umbrella
+    //   if (umbrella[i].checked_out_by == current_user) {
+    //     console.log(umbrella[i].checked_out_by);
+    //     secondUmbrella = true;
+    //   } else {
+    //   } 
+    // }
 
-          //Print pre-log umbrella status to console
-          console.log("umbrella " + umbrella[i].id + " has a status of " + umbrella[i].status);
+      // If user doesn't have an umbrella, execute checkout db updates
+      if (secondUmbrella == false) {
+        console.log('Checkout function is running!');
 
-          //enter activity line in activity log table
-          var stmt = db.prepare("INSERT INTO activity_log VALUES (null, datetime('now', 'localtime'), ?, ?, ?)");
-          stmt.run('OUT', umbrella_out, current_user);
-          stmt.finalize();
-          console.log("umbrella activity log updated");
+        for(i = 0; i < 4; i++) {
+          
+          // Match the UID to the umbrella ID
+          if (umbrella[i].uid == UID) {  
 
-          //update umbrella status to 'out' in umbrellas table
-          var stmt2 = db.prepare("UPDATE umbrellas SET status = 'OUT' WHERE id = " + umbrella_out);
-          stmt2.run();
-          stmt2.finalize();
-          console.log("umbrella table updated");     
+            // Capture the ID of the umbrella being checked out
+            umbrella_out = umbrella[i].id
 
-        }
-      }
-    }    
+            // If umbrella is in, do the following
+            if (umbrella[i].status == 'IN') {
+
+              //enter activity line in activity log table
+              var stmt = db.prepare("INSERT INTO activity_log VALUES (null, datetime('now', 'localtime'), ?, ?, ?)");
+              stmt.run('OUT', umbrella_out, current_user);
+              stmt.finalize();
+
+              //update umbrella status to 'out' in umbrellas table
+              var stmt2 = db.prepare("UPDATE umbrellas SET status = 'OUT', checked_out_by = " + "'" + current_user + "'" + " WHERE id = " + umbrella_out);
+              stmt2.run();
+              stmt2.finalize();
+              console.log("umbrella table updated");     
+              
+            }
+          }
+        } 
+      } 
+      // else {
+      //   console.log('3rd check: ' + secondUmbrella);
+      //   console.log('user already has umbrella checked out');
+      //   socket.emit('message', { error1: 'error, yo' });
+
+      // }
   });
 }
 
@@ -241,19 +263,32 @@ function checkInUmbrella(){
         if (umbrella[i].status == 'OUT') {
 
           //Print pre-log umbrella status to console
-          console.log("umbrella " + umbrella[i].id + " has a status of " + umbrella[i].status);
+          console.log("Pre: check in status: Umbrella " + umbrella[i].id + " has a status of " + umbrella[i].status);
+
+          //Find username that is connected with umbrella being checked back in
+          console.log("assigned user: " + umbrella[i].checked_out_by);
+
 
           //enter activity line in activity log table
           var stmt = db.prepare("INSERT INTO activity_log VALUES (null, datetime('now', 'localtime'), ?, ?, ?)");
-          stmt.run('IN', umbrella_in, 'users email');  //<---- replace with variable that has id'ed who previously checked out umby
+          stmt.run('IN', umbrella_in, umbrella[i].checked_out_by);  //<---- replace with variable that has id'ed who previously checked out umby
           stmt.finalize();
           console.log("umbrella activity log updated");
 
-          //update umbrella status to 'out' in umbrellas table
-          var stmt2 = db.prepare("UPDATE umbrellas SET status = 'IN' WHERE id = " + umbrella_in);
-          stmt2.run();
+          // //update umbrella status to 'out' in umbrellas table
+          // var stmt2 = db.prepare("UPDATE umbrellas SET status = 'IN' WHERE id = " + umbrella_in);
+          // stmt2.run();
+          // stmt2.finalize();
+          // console.log("umbrella table updated");   
+
+          //Print user originally responsible for checking it out to console
+          console.log("Umbrella belongs to " + umbrella[i].checked_out_by);
+
+          //Update multiple values in Umbrellas table
+          var stmt2 = db.prepare("UPDATE umbrellas SET status = 'IN', checked_out_by = " + null + " WHERE id = " + umbrella_in);
+          stmt2.run();  
           stmt2.finalize();
-          console.log("umbrella table updated");     
+          console.log("umbrella activity log updated2");  
 
         }
       }
@@ -328,16 +363,55 @@ exports.weather = function(req, res, next) {
   // });
 };
 
+function doesUserHaveUmbrella() {
+  // Match the UID to the umbrella ID
+  db.all("SELECT * FROM umbrellas", function(err, umbrella){
+    //secondUmbrella = false;
+    console.log("checking to see if the user has an umbrella out");
 
+
+    for (i = 0; i < 4; i++) {
+      // Make sure user doesn't already have an umbrella
+      if (umbrella[i].checked_out_by == current_user) {
+        secondUmbrella = true;
+      } else {
+      } 
+    }
+
+    if (secondUmbrella == true) {
+      console.log('user already has umbrella checked out');
+      socket.emit('status', { unlock: 'false' });
+    } else if (secondUmbrella == false) {
+      socket.emit('status', { unlock: 'true' });
+    }
+  });
+}
 
 function getUID() {
   // Get UID from checkout reader
   socket.on('connect', function(){});
+
+  // This is where checkout needs to run. LISTEN FOR SERVER, TEST UMBRELLAS DB & EITHER CHECKOUT, OR SEND BACK ERROR
+  socket.on('test', function(data){
+    console.log("from server: " + data.test);
+
+    if (data.test == 'checkout') {
+      //DO CHECKOUT STUFF
+      doesUserHaveUmbrella();
+      // checkOutUmbrella(); <-----THIS MUST HAPPEN ON RFID EVENT!
+      // Reset the check
+      secondUmbrella = false;
+    }
+
+
+
+  });
   
   socket.on('uid', function(data){
     var UID_data = data.uid;
     var UID_split = UID_data.split('@');
     UID = UID_split[1];
+
 
     if (UID_split[0] == 'in') {
       //DO CHECKIN STUFF
@@ -347,11 +421,19 @@ function getUID() {
 
     if (UID_split[0] == 'out') {
       //DO CHECKOUT STUFF
+      //doesUserHaveUmbrella();
       checkOutUmbrella();
       console.log('UID out: ' + UID);
+      secondUmbrella = false;
+
     }
   });
 
-  socket.on('disconnect', function(){});
+// if (secondUmbrella == true) {
+//   socket.emit('data', { error1: 'error, yo' });
+//   console.log('emitting...')
+// }
+  socket.on('disconnect', function(){
+  });
   ///////////////////////////////////////
 }
