@@ -1,57 +1,80 @@
-var tessel = require('tessel'); // import tessel
-var av = require('tessel-av');
-var path = require('path');
-var app = require('express')();
-var http = require('http').Server(app);
-var io = require('socket.io')(http);
-var rfidlib = require('rfid-pn532');
+// REQUIRE MODULES ///////////////////////////////////////////////////////////////////////////////
+var tessel = require('tessel'); 		// Tessel
+var av = require('tessel-av'); 			// Tessel AV module
+var path = require('path');				// Path Module
+var app = require('express')();			// Express webserver
+var http = require('http').Server(app);	// HTTP server
+var io = require('socket.io')(http);	// Socket IO
+var rfidlib = require('rfid-pn532');	// Tessel RFID module
+//////////////////////////////////////////////////////////////////////////////////////////////////
 
+// SET UP ////////////////////////////////////////////////////////////////////////////////////////
 app.use(function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
   next();
 });
 
-var test = 'ABCDEFGHIJ';
-var pin = tessel.port.A.pin[4];
-var pin2 = tessel.port.A.pin[5];
-var pin3 = tessel.port.B.pin[4]; //RED
-var rfid = rfidlib.use(tessel.port['A']); 
-var rfid2 = rfidlib.use(tessel.port['B']); 
+// SET TESSEL PINS
+var pin = tessel.port.A.pin[4];					// GREEN LED
+var pin2 = tessel.port.A.pin[5];				// Solenoid
+var pin3 = tessel.port.B.pin[4]; 				// RED LED
+var rfid_out = rfidlib.use(tessel.port['A'],	// RFID OUT reader
+	{
+		listen: true, 	// Auto read
+		delay: 3000		// After reading add delay
+	}
+); 
 
+var rfid_in = rfidlib.use(tessel.port['B'],		// RFID In reader
+	{
+	    listen: true, 	// Auto read
+	    delay: 3000		// After reading add delay
+ 	}
+); 
 
-
+// SET AUDIO (Files included with .tesselinclude)
 var checkout = path.join(__dirname, '/public/checkout.mp3');
-var sound1 = new av.Player(checkout);
+var sound_checkout = new av.Player(checkout);
 
 var hurry = path.join(__dirname, '/public/hurry.mp3');
-var sound2 = new av.Player(hurry);
+var sound_hurry = new av.Player(hurry);
 
 var intro = path.join(__dirname, '/public/intro.mp3');
-var sound3 = new av.Player(intro);
+var sound_intro = new av.Player(intro);
 
+var deny = path.join(__dirname, '/public/deny2.mp3');
+var sound_deny = new av.Player(deny);
+
+var checkin = path.join(__dirname, '/public/checkin.mp3');
+var sound_checkin = new av.Player(checkin);
+
+// SET INITIAL VALUES
 pin.output(1);  // turn Boot LED on
-//sound3.play();  // Play intro tune
+//sound_intro.play();  // Play intro tune
 var checkingOut = false;
 var UID_data = null;
-
+var runOnce = true;
+//////////////////////////////////////////////////////////////////////////////////////////////////
 
 io.on('connection', function(socket){
 	console.log('socket connected...');
     
     // Send checked out umbrella UID to client (scripts.js) for DB insertion
-    rfid.on('data', function(card) {
+    rfid_out.on('data', function(card) {
       UID_data = 'out@'+card.uid.toString('hex');
       socket.emit('uid', { uid: UID_data });
       console.log(UID_data);
+      sound_checkin.play();
       solenoid2();
     });
  
  	// Send checked in umbrella UID to client for DB insertion
- 	rfid2.on('data', function(card) {
+ 	rfid_in.on('data', function(card) {
  		UID_data = 'in@'+card.uid.toString('hex');
       socket.emit('uid', { uid: UID_data });
       console.log(UID_data);
+      sound_checkin.play();
   	});
 
  	// LISTEN TO SCRIPTS.JS & SEND REQUEST TO UMBRELLAS.JS FOR MULTIPLE UMBRELLA DB CHECK
@@ -81,8 +104,7 @@ io.on('connection', function(socket){
 		// Optional message coming from scripts.js
 	    if (data.unlock == 'false') { 
 	    	console.log("stay locked, RED LED");
-	    	pin3.output(1);  // turn RED LED on
-	    	pin1.output(0);  // turn GREEN LED off
+	    	denyUmbrella();
 	    } else if (data.unlock == 'true') {
 	    	checkout2();
 	    	console.log('unlock/checkout');
@@ -112,15 +134,44 @@ function solenoid2(){
 	pin2.output(0);
 };
 
+// Blink
+function redBlink(){
+	pin3.toggle();
+};
+
+// ERROR (User already has umbrella)
+function denyUmbrella(){
+	pin.output(0);  // turn GREEN LED off
+
+	// Play deny tune
+	sound_deny.play();
+
+
+
+	if (runOnce == true) {
+		runOnce = false;
+		// Blink RED LED for 4 seconds
+		var blink = setInterval(redBlink ,100);
+		setTimeout(function( ) { clearInterval( blink ); }, 4000);
+
+		// Reset LEDs to waiting state
+		setTimeout(function(){
+			pin.output(1);  // Turn GREEN LED on
+			pin3.output(0);  // Turn RED LED off
+			runOnce = true;
+		}, 4000);
+	}
+};
+
 function checkout() {
-	sound1.play();
+	sound_checkout.play();
 	solenoid();  // turn pin high (on)
 	var blink = setInterval(blinking ,500);
 	setTimeout(function( ) { clearInterval( blink ); }, 8000);
 
 	setTimeout(function(){
 		// Hurry
-		sound2.play();
+		sound_hurry.play();
 		var blink = setInterval(blinking ,350);
 		setTimeout(function( ) { clearInterval( blink ); }, 2700);
 	}, 8000);
@@ -133,13 +184,13 @@ function checkout() {
 function checkout2() {
 	if (checkingOut == false) {
 		checkingOut = true;
-		sound1.play();
+		sound_checkout.play();
 		solenoid();  // turn pin high (on)
 		var blink = setInterval(blinking ,500);
 		setTimeout(function( ) { clearInterval( blink ); }, 8000);
 		setTimeout(function(){
 			// Hurry
-			sound2.play();
+			sound_hurry.play();
 			var blink = setInterval(blinking ,350);
 			setTimeout(function( ) { clearInterval( blink ); }, 2700);
 		}, 8000);
@@ -165,14 +216,14 @@ app.get('/checkout', function(req, res) {
 console.log("checkout v1");
 	// OK
 	res.send('Take an umbrella');
-	sound1.play();
+	sound_checkout.play();
 	solenoid();  // turn pin high (on)
 	var blink = setInterval(blinking ,500);
 	setTimeout(function( ) { clearInterval( blink ); }, 8000);
 
 	setTimeout(function(){
-		// Hurry
-		sound2.play();
+		// Timeout
+		sound_hurry.play();
 		var blink = setInterval(blinking ,350);
 		setTimeout(function( ) { clearInterval( blink ); }, 2700);
 	}, 8000);
