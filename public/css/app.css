@@ -1,7 +1,43 @@
+* {
+	margin: 0px;
+}
+
+body {
+	margin: 0px;
+	padding: 0px;
+	font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+	font-size: 16px; 
+}
+
+.wrapper, h1 {
+	margin: 0px;
+	padding: 0px;
+	width: 100%;
+}
+
 ol li {
 	display: inline-block;
-	width: 15%;
-	padding:5px;
+	padding:3px;
+}
+
+ol {
+	padding: 5px;
+	margin: 0px;
+}
+
+.green {
+	background-color: green;
+	color: blue;
+}
+
+#row1 {
+	background-color: #333;
+	color: white;
+}
+
+#row2 {
+	background-color: #eee;
+	margin-bottom: 10px;
 }
 
 #headers {
@@ -9,9 +45,30 @@ ol li {
 	border-bottom: solid thin;
 }
 
-#rows {
-	background-color: #eee;
+header {
+	background-color: #6AA1E2;
+	text-align: center;
+	padding: 10px;
+	margin: 0px 0px 10px 0px;
 }
+
+h1 {
+	height: 60px;
+	background-color: white;
+	-webkit-mask:  url(../images/umbotlogo.svg) no-repeat 50% 50%;
+    mask: url(../images/umbotlogo.svg) no-repeat 50% 50%;
+    text-indent: -9999px;   
+    background-size: contain;
+    margin: 0px 0px 5px 0px;
+}
+
+h2 {
+	margin-top: 0px;
+}
+
+
+
+
 
 ul {
 	padding: 0px;
@@ -25,18 +82,74 @@ ul li {
 	
 }
 
-ul li a:link, ul li a:visited {
-	display: inline-block;
+button {
 	width: 80px;
-	background: #ffa500;
+	background: #C5D9E8;
+	color: #6AA1E2;
+	padding: 6px;
+	text-decoration: none;
+	border-radius: 4px;
+	font-size: 1em;
+	border: 0px;
+}
+
+
+
+a:link.loginbutton, a:visited.loginbutton, a:link.checkout, a:visited.checkout{
+	background: #CC6600;
 	color: white;
 	padding: 10px;
 	text-decoration: none;
+	border-radius: 4px;
+}
+
+a:hover.loginbutton {
+	background: #BF5D04;
+	color: white;
+	padding: 10px;
+	text-decoration: none;
+	border-radius: 4px;
+}
+
+.content {
+	text-align: center;
+	padding: 10px;
+
+} 
+
+.button {
+	margin: 15px 0px;
+}
+
+ul li a:link, ul li a:visited {
+	display: inline-block;
+	width: 80px;
+	background: #C5D9E8;
+	color: #6AA1E2;
+	padding: 6px;
+	text-decoration: none;
+	border-radius: 4px;
+	font-size: 1em;
 	
 }
 
 
 ul li a:hover {
-	background: #e59400;
+	background: #fff;
 	text-decoration: none;
+	border-radius: 4px;
 }
+
+a:link, a:visited {
+	color: #6AA1E2;
+}
+
+a:hover {
+	color: #C5D9E8;
+}
+
+.container {
+	padding: 10px;
+}
+
+

@@ -55,7 +55,14 @@ pin.output(1);  // turn Boot LED on
 var checkingOut = false;
 var UID_data = null;
 var runOnce = true;
+var positiveStatus = 'Take your umbrella';
+var negativeStatus = 'You already have an umbrella';
 //////////////////////////////////////////////////////////////////////////////////////////////////
+
+function lock() {
+	solenoid2();
+	checkingOut = false;
+}
 
 io.on('connection', function(socket){
 	console.log('socket connected...');
@@ -66,7 +73,8 @@ io.on('connection', function(socket){
       socket.emit('uid', { uid: UID_data });
       console.log(UID_data);
       sound_checkin.play();
-      solenoid2();
+      lock();
+      //solenoid2();
     });
  
  	// Send checked in umbrella UID to client for DB insertion
@@ -104,8 +112,10 @@ io.on('connection', function(socket){
 		// Optional message coming from scripts.js
 	    if (data.unlock == 'false') { 
 	    	console.log("stay locked, RED LED");
+	    	io.emit('status', { message: negativeStatus });
 	    	denyUmbrella();
 	    } else if (data.unlock == 'true') {
+	    	io.emit('status', { message: positiveStatus });
 	    	checkout2();
 	    	console.log('unlock/checkout');
 	    }
@@ -146,8 +156,6 @@ function denyUmbrella(){
 	// Play deny tune
 	sound_deny.play();
 
-
-
 	if (runOnce == true) {
 		runOnce = false;
 		// Blink RED LED for 4 seconds
@@ -163,23 +171,23 @@ function denyUmbrella(){
 	}
 };
 
-function checkout() {
-	sound_checkout.play();
-	solenoid();  // turn pin high (on)
-	var blink = setInterval(blinking ,500);
-	setTimeout(function( ) { clearInterval( blink ); }, 8000);
+// function checkout() {
+// 	sound_checkout.play();
+// 	solenoid();  // turn pin high (on)
+// 	var blink = setInterval(blinking ,500);
+// 	setTimeout(function( ) { clearInterval( blink ); }, 8000);
 
-	setTimeout(function(){
-		// Hurry
-		sound_hurry.play();
-		var blink = setInterval(blinking ,350);
-		setTimeout(function( ) { clearInterval( blink ); }, 2700);
-	}, 8000);
-	// Lock
-	setTimeout(function(){
-		solenoid2();
-	}, 10700);
-}
+// 	setTimeout(function(){
+// 		// Hurry
+// 		sound_hurry.play();
+// 		var blink = setInterval(blinking ,350);
+// 		setTimeout(function( ) { clearInterval( blink ); }, 2700);
+// 	}, 8000);
+// 	// Lock
+// 	setTimeout(function(){
+// 		solenoid2();
+// 	}, 10700);
+// }
 
 function checkout2() {
 	if (checkingOut == false) {
@@ -188,18 +196,21 @@ function checkout2() {
 		solenoid();  // turn pin high (on)
 		var blink = setInterval(blinking ,500);
 		setTimeout(function( ) { clearInterval( blink ); }, 8000);
-		setTimeout(function(){
-			// Hurry
-			sound_hurry.play();
-			var blink = setInterval(blinking ,350);
-			setTimeout(function( ) { clearInterval( blink ); }, 2700);
-		}, 8000);
-		// Lock
-		setTimeout(function(){
-			solenoid2();
-			checkingOut = false;
-		}, 10700);
 		
+		// Only do time out if user hasn't taken umbrella
+		if (checkingOut == true) {
+			setTimeout(function(){
+				// Hurry
+				sound_hurry.play();
+				var blink = setInterval(blinking ,350);
+				setTimeout(function( ) { clearInterval( blink ); }, 2700);
+			}, 8000);
+			// Lock
+			setTimeout(function(){
+				solenoid2();
+				checkingOut = false;
+			}, 10700);
+		}
 	}
 }
 
@@ -211,27 +222,27 @@ function checkout2() {
 // }
 
 
-// Checkout
-app.get('/checkout', function(req, res) {
-console.log("checkout v1");
-	// OK
-	res.send('Take an umbrella');
-	sound_checkout.play();
-	solenoid();  // turn pin high (on)
-	var blink = setInterval(blinking ,500);
-	setTimeout(function( ) { clearInterval( blink ); }, 8000);
+// // Checkout
+// app.get('/checkout', function(req, res) {
+// console.log("checkout v1");
+// 	// OK
+// 	res.send('Take an umbrella');
+// 	sound_checkout.play();
+// 	solenoid();  // turn pin high (on)
+// 	var blink = setInterval(blinking ,500);
+// 	setTimeout(function( ) { clearInterval( blink ); }, 8000);
 
-	setTimeout(function(){
-		// Timeout
-		sound_hurry.play();
-		var blink = setInterval(blinking ,350);
-		setTimeout(function( ) { clearInterval( blink ); }, 2700);
-	}, 8000);
-	// Lock
-	setTimeout(function(){
-		solenoid2();
-	}, 10700);
-});
+// 	setTimeout(function(){
+// 		// Timeout
+// 		sound_hurry.play();
+// 		var blink = setInterval(blinking ,350);
+// 		setTimeout(function( ) { clearInterval( blink ); }, 2700);
+// 	}, 8000);
+// 	// Lock
+// 	setTimeout(function(){
+// 		solenoid2();
+// 	}, 10700);
+// });
 
 http.listen(80, function () {
   console.log('Hardware Online');

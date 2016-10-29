@@ -1,4 +1,4 @@
-
+var Forecast = require('forecast');
 var sqlite3 = require('sqlite3').verbose();
 var pug = require('pug');
 var db = new sqlite3.Database('umbot.db');
@@ -97,6 +97,7 @@ exports.dashboard = function(req, res) {
 
 var inCount;
 var outCount;
+var statusMessage = 'hi';
 
 
   async.parallel([
@@ -112,25 +113,40 @@ var outCount;
     }
   ], function (error, results) {
 
-    if (error) {
-      console.log('error');
-      //loggedInUser = null;
-    } else {
-      res.render('dashboard', { _incount: results[0].cnt + ' IN', _outcount: results[1].cnt + ' OUT'});
-      console.log(inCount);
-      console.log(results[1]);
 
-      if (req.user) {
-        current_user = req.user.email;
-      // get logged in user test
-      // only do this if RFID code positive.
-
-        //checkOutUmbrella();
-        //console.log('db should have been updated to show '+ current_user + ' checked out an umbrella ' + UID);
-    } else {
-      console.log('no one logged in');
-    }
-    }
+      // Initialize 
+      var forecast = new Forecast({
+        service: 'forecast.io',
+        key: '4e777bbb1f972c436be40b9bacb59bf7',
+        units: 'f', // Only the first letter is parsed 
+        cache: true,      // Cache API requests? 
+        ttl: {            // How long to cache requests. Uses syntax from moment.js: http://momentjs.com/docs/#/durations/creating/ 
+          minutes: 5,
+          seconds: 0
+          }
+      });
+       
+      // Retrieve weather information from coordinates (Sydney, Australia) 
+      forecast.get([44.9778, -93.2650], function(err, weather) {
+        if(err) return console.dir(err);
+        var summary = weather.hourly.summary;
+        var temp = weather.currently.temperature;
+        var precipProbability = weather.currently.precipProbability;
+        var nearestStormDistance = weather.currently.nearestStormDistance;
+  
+          if (error) {
+            console.log('error');
+          } else {
+            res.render('dashboard', {_incount: results[0].cnt, _temp: temp, _summary: summary, _precip: precipProbability, _storm: nearestStormDistance});
+            // Get logged in user
+            if (req.user) {
+              current_user = req.user.email;
+            
+            } else {
+              console.log('no one logged in');
+            }
+        }
+    });
   })
 };
 
@@ -170,14 +186,15 @@ var outCount;
 exports.log = function(req, res, next) {
 
   db.all('SELECT * FROM activity_log ORDER BY id DESC', function(err, row) {
-    if(err !== null) {
-      //Next err is middleware? 
-      next(err);
-    }
-    else {
-    	//Looks like Node sends this as an object array? Will pick it apart in Pug
-    	res.render('log', {logrow: row});
-    }
+    // if(err !== null) {
+    //   //Next err is middleware? 
+    //   next(err);
+    // }
+    // else {
+    // 	//Looks like Node sends this as an object array? Will pick it apart in Pug
+    // 	res.render('log', {logrow: row});
+    // }
+    res.render('log', {logrow: row});
   });
 };
 
@@ -326,8 +343,6 @@ exports.weather = function(req, res, next) {
   //https://www.npmjs.com/package/forecast
   //https://developer.forecast.io/docs/v2
 
-  // Require the module 
-  var Forecast = require('forecast');
    
   // Initialize 
   var forecast = new Forecast({
@@ -381,8 +396,11 @@ function doesUserHaveUmbrella() {
     if (secondUmbrella == true) {
       console.log('user already has umbrella checked out');
       socket.emit('status', { unlock: 'false' });
+      statusMessage = 'You already have an umbrella checked out';
     } else if (secondUmbrella == false) {
       socket.emit('status', { unlock: 'true' });
+      statusMessage = 'Take an umbrella';
+
     }
   });
 }
@@ -398,7 +416,6 @@ function getUID() {
     if (data.test == 'checkout') {
       //DO CHECKOUT STUFF
       doesUserHaveUmbrella();
-      // checkOutUmbrella(); <-----THIS MUST HAPPEN ON RFID EVENT!
       // Reset the check
       secondUmbrella = false;
     }
@@ -425,6 +442,7 @@ function getUID() {
       checkOutUmbrella();
       console.log('UID out: ' + UID);
       secondUmbrella = false;
+      //statusMessage = '';
 
     }
   });
@@ -436,4 +454,9 @@ function getUID() {
   socket.on('disconnect', function(){
   });
   ///////////////////////////////////////
+}
+
+
+function weather() {
+
 }

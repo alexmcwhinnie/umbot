@@ -55,7 +55,7 @@ block body
             .header
               if stormpathConfig.web.register.enabled
                 span.
-                  Log In or <a href="#{stormpathConfig.web.register.uri}">Create Account</a>
+                  Log In or <a href="#{stormpathConfig.web.register.uri}">Create Account!</a>
               else
                 span.
                   Log In
@@ -127,3 +127,5 @@ block body
           a.forgot(style="float:left", href="#{stormpathConfig.web.verifyEmail.uri}") Resend Verification Email?
         if stormpathConfig.web.forgotPassword.enabled
           a.forgot(style="float:right", href="#{stormpathConfig.web.forgotPassword.uri}") Forgot Password?
+
+      

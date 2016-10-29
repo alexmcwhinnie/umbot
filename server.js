@@ -26,7 +26,7 @@ app.use(function(req, res, next) {
 
 //Routes. These are detailed in routes/umbrellas.js
 //app.get('/', umbrellas.count);
-app.get('/log', umbrellas.log);
+//app.get('/log', umbrellas.log);
 app.get('/weather', umbrellas.weather);
 app.get('/checkout', umbrellas.checkout);
 app.get('/hardware', umbrellas.hardware);
@@ -75,7 +75,12 @@ app.get('/', stormpath.getUser, umbrellas.dashboard, function(req, res) {
   res.render('dashboard', {
     title: 'Welcome'
   });
-  //current_user = req.user.email;
+});
+
+app.get('/log', stormpath.getUser, umbrellas.log, function(req, res) {
+  res.render('log', {
+    title: 'Log'
+  });
 });
 
 
