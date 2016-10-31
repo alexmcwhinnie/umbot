@@ -57,10 +57,27 @@ var UID_data = null;
 var runOnce = true;
 var positiveStatus = 'Take your umbrella';
 var negativeStatus = 'You already have an umbrella';
+//var locked = true;
+
+// Checkout Timeout variables. Used for terminating checkout sequence from outside of function
+// NOTE: RFID out-reader signals checkout sequence to end
+var takeUmbrella;
+var blink;
+var timeOut;
+var reLock;
+
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 function lock() {
 	solenoid2();
+	
+	// Prematurely terminate checkout sequence
+	clearTimeout(takeUmbrella);
+	clearInterval(blink);
+	clearTimeout(timeOut);
+	clearTimeout(reLock);
+
+	// Because checkout/timeout sequence is prematurely terminated when the lock function is called, this needs to be called here.
 	checkingOut = false;
 }
 
@@ -116,7 +133,7 @@ io.on('connection', function(socket){
 	    	denyUmbrella();
 	    } else if (data.unlock == 'true') {
 	    	io.emit('status', { message: positiveStatus });
-	    	checkout2();
+	    	checkout3(); // Call checkout function
 	    	console.log('unlock/checkout');
 	    }
 
@@ -198,7 +215,7 @@ function checkout2() {
 		setTimeout(function( ) { clearInterval( blink ); }, 8000);
 		
 		// Only do time out if user hasn't taken umbrella
-		if (checkingOut == true) {
+		// if (locked == false) {
 			setTimeout(function(){
 				// Hurry
 				sound_hurry.play();
@@ -210,7 +227,50 @@ function checkout2() {
 				solenoid2();
 				checkingOut = false;
 			}, 10700);
-		}
+		// }
+	}
+}
+
+// function checkOutSequence() {
+// 	setTimeout(function() { clearInterval( blink ); }, 8000);
+// 	setTimeout(function(){
+// 		// Hurry
+// 		sound_hurry.play();
+// 		var blink = setInterval(blinking ,350);
+// 		setTimeout(function( ) { clearInterval( blink ); }, 2700);
+// 	}, 8000);
+// 	// Lock
+// 	setTimeout(function(){
+// 		solenoid2();
+// 		checkingOut = false;
+// 	}, 10700);
+// }
+
+
+function checkout3() {
+	if (checkingOut == false) {
+		checkingOut = true;
+
+		
+			sound_checkout.play();
+			solenoid();  // turn pin high (on)
+			blink = setInterval(blinking ,500);
+			takeUmbrella = setTimeout(function( ) { clearInterval( blink ); }, 8000);
+			
+			// Only do time out if user hasn't taken umbrella
+			// if (locked == false) {
+			timeOut = setTimeout(function(){
+				// Hurry
+				sound_hurry.play();
+				blink = setInterval(blinking ,350);
+				setTimeout(function( ) { clearInterval( blink ); }, 2700);
+			}, 8000);
+			// Lock
+			reLock = setTimeout(function(){
+				solenoid2();
+				checkingOut = false;
+			}, 10700);
+		
 	}
 }
 

@@ -129,15 +129,33 @@ var statusMessage = 'hi';
       // Retrieve weather information from coordinates (Sydney, Australia) 
       forecast.get([44.9778, -93.2650], function(err, weather) {
         if(err) return console.dir(err);
-        var summary = weather.hourly.summary;
+        var summary = weather.currently.summary;
         var temp = weather.currently.temperature;
         var precipProbability = weather.currently.precipProbability;
         var nearestStormDistance = weather.currently.nearestStormDistance;
+        var skycon = weather.currently.icon;
+
+        // Format darksky icon to UPPERCASE
+        skycon = skycon.toUpperCase();
+
+        // Convert to character array
+        var skyconChars = skycon.split('');
+
+        // Loop through character array and replace '-' with '_'
+        for (i = 0; i < skyconChars.length; i++) {
+          if (skyconChars[i] == "-") {
+            skyconChars[i] = "_";
+          }
+        }                
+
+        // Reassemble character array as new string
+        var skyconFormatted = skyconChars.join("");
+
   
           if (error) {
             console.log('error');
           } else {
-            res.render('dashboard', {_incount: results[0].cnt, _temp: temp, _summary: summary, _precip: precipProbability, _storm: nearestStormDistance});
+            res.render('dashboard', {_incount: results[0].cnt, _temp: temp, _summary: summary, _precip: precipProbability, _storm: nearestStormDistance, _icon: skyconFormatted});
             // Get logged in user
             if (req.user) {
               current_user = req.user.email;
@@ -359,7 +377,7 @@ exports.weather = function(req, res, next) {
   // Retrieve weather information from coordinates (Sydney, Australia) 
   forecast.get([44.9778, -93.2650], function(err, weather) {
     if(err) return console.dir(err);
-    var summary = weather.hourly.summary;
+    var summary = weather.currently.summary;
     var temp = weather.currently.temperature;
     var precipProbability = weather.currently.precipProbability;
     var nearestStormDistance = weather.currently.nearestStormDistance;

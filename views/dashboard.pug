@@ -2,31 +2,36 @@ extends base
 
 block body
 
-    div.content
-      h2 Hello!
+  div.content
+    
+    if user
+      h2 Hello #{user.givenName}
+      p #{_incount} umbrellas available
+      
+      div.button
+        a.checkout(href="#") Get an umbrella         
 
-      if user
-        p Welcome, #{user.givenName}
+      p#status
+      br
+      p= _summary
+
+      canvas#icon
+
+      - var weatherIcon = "Skycons." + _icon
+
+      script.
+        var skycons = new Skycons({"color": "black"});
         
-        div.button
-          a.checkout(href="#") Give me an umbrella         
+        skycons.set("icon", #{weatherIcon});
+        skycons.play();
 
-        p#status
-        h3 There are #{_incount} umbrellas available
+    else
+      h2 Welcome to Umbot
+      p Sign up to stay dry.
+      div.button
+        a.loginbutton(href="/login") Login now
+      p
+        span.small Don't have an account?
+        span &nbsp;
+        a.small(href="/register") Register now
 
-        p= "Outlook: " + _summary
-        a.more(href="/") more
-
-        div.fullForecast
-          p= "Current Temperature: " + _temp + " F"
-          p= "Precipitation Percentage: " + _precip + "%"
-          p= "Nearest Storm Distance: " + _storm + " miles"
-
-      else
-        p Welcome to Umbot, sign up to stay dry.
-        div.button
-          a.loginbutton(href="/login") Login now
-        p
-          span.small Don't have an account?
-          span &nbsp;
-          a.small(href="/register") Register now

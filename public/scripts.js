@@ -21,4 +21,16 @@ $(document).ready(function(){
 		$(".fullForecast").show();
 	});
 
+
+
+	// Try to add weather icons
+	// var skycons = new Skycons({"color": "black"});
+ //  // on Android, a nasty hack is needed: {"resizeClear": true}
+
+ //  // you can add a canvas by it's ID...
+ //  skycons.add("icon", Skycons.RAIN);
+
+ //  // start animation!
+ //  skycons.play();
+
 });
