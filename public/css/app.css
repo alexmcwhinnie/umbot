@@ -31,7 +31,7 @@ ol {
 }
 
 #row1 {
-	background-color: #333;
+	background-color: #333A4B;
 	color: white;
 }
 
@@ -46,7 +46,7 @@ ol {
 }
 
 header {
-	background-color: #6AA1E2;
+	background-color: #333A4B;
 	text-align: center;
 	padding: 10px;
 	margin: 0px 0px 10px 0px;
@@ -54,7 +54,7 @@ header {
 
 h1 {
 	height: 60px;
-	background-color: white;
+	background-color: #8ED3D5;
 	-webkit-mask:  url(../images/umbotlogo.svg) no-repeat 50% 50%;
     mask: url(../images/umbotlogo.svg) no-repeat 50% 50%;
     text-indent: -9999px;   
@@ -66,14 +66,7 @@ h2 {
 	margin-top: 0px;
 }
 
-#icon {
-	width: 128px;
-	height: 64px;
-}
-#icon2 {
-	width: 128px;
-	height: 64px;
-}
+
 
 
 
@@ -92,8 +85,8 @@ ul li {
 
 button {
 	width: 80px;
-	background: #C5D9E8;
-	color: #6AA1E2;
+	background: #8ED3D5;
+	color: #333A4B;
 	padding: 6px;
 	text-decoration: none;
 	border-radius: 4px;
@@ -104,7 +97,7 @@ button {
 
 
 a:link.loginbutton, a:visited.loginbutton, a:link.checkout, a:visited.checkout{
-	background: #CC6600;
+	background: #C5B92F;
 	color: white;
 	padding: 10px;
 	text-decoration: none;
@@ -112,7 +105,7 @@ a:link.loginbutton, a:visited.loginbutton, a:link.checkout, a:visited.checkout{
 }
 
 a:hover.loginbutton {
-	background: #BF5D04;
+	background: #C5B92F;
 	color: white;
 	padding: 10px;
 	text-decoration: none;
@@ -132,8 +125,8 @@ a:hover.loginbutton {
 ul li a:link, ul li a:visited {
 	display: inline-block;
 	width: 80px;
-	background: #C5D9E8;
-	color: #6AA1E2;
+	background: #8ED3D5;
+	color: #333A4B;
 	padding: 6px;
 	text-decoration: none;
 	border-radius: 4px;
@@ -141,23 +134,91 @@ ul li a:link, ul li a:visited {
 	
 }
 
-
 ul li a:hover {
-	background: #fff;
+	background: #8ED3D5;
 	text-decoration: none;
 	border-radius: 4px;
 }
 
 a:link, a:visited {
-	color: #6AA1E2;
+	color: #307375;
 }
 
 a:hover {
-	color: #C5D9E8;
+	color: #307375;
 }
 
 .container {
 	padding: 10px;
 }
 
+.form-control {
+	background-color: #f4f4f4;
+	font-size: 1em;
+	height: 30px;
+	width: 97%;
+	padding: 1%;
+	margin: 2px 0px 0px 0px
+}
+
+.form-group {
+	margin: 10px 0px 0px 0px;
+}
+
+.login, .register {
+	margin: 10px 0px;
+	width: 100%;
+	background-color: #C5B92F;
+	color: white;
+	border-radius: 4px;
+}
+
+#weather {
+	text-align: center;
+	width: 80%;
+	margin: 0 auto;
+}
+
+#icon {
+}
+
+#temperature-wrapper {
+	height: 42px;
+	display: inline-block;
+	padding-top: 22px;
+	vertical-align: top;
+	font-size: 1.5em;
+	font-weight: bold;
+	margin: 0px 0px 0px 3px;
+}
+
+body#home #homebutton {
+	background-color: white;
+}
+
+body#log #logbutton {
+	background-color: white;
+}
+
+.logemphasis {
+	font-weight: bold;
+}
+
+.activitylog-out {
+	background-image: url(../images/checkout-icon.svg);
+	background-repeat: no-repeat;
+	background-size: 20px 18px;
+	width: 20px;
+	height: 18px;
+	float: right;
+}
+
+.activitylog-in {
+	background-image: url(../images/checkin-icon.svg);
+	background-repeat: no-repeat;
+	background-size: 20px 18px;
+	width: 20px;
+	height: 18px;
+	float: right;
+}
 

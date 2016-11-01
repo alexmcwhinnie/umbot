@@ -135,6 +135,10 @@ var statusMessage = 'hi';
         var nearestStormDistance = weather.currently.nearestStormDistance;
         var skycon = weather.currently.icon;
 
+        // Strip the decimal places off temperature
+        temp = Math.round(temp);
+        temp = temp + String.fromCharCode(176);
+
         // Format darksky icon to UPPERCASE
         skycon = skycon.toUpperCase();
 

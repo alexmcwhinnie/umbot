@@ -1,7 +1,7 @@
 block vars
 doctype html
 html
-
+  block vars
   head
     meta(charset='utf-8')
     title #{title}
@@ -13,17 +13,19 @@ html
 
     block head
 
-  body(class='#{bodytag}')
+
+  body(id=bodytag)
     div.wrapper
       header 
-        h1 
-          a(href='/') Umbot
+        a(href='/')
+          h1 
+
         if user
           ul
             li
-              a(href='/') Home
+              a(href='/')#homebutton Home
             li
-              a(href='/log') Log
+              a(href='/log')#logbutton Log
             li
               form(action='/logout', method='POST')
                 button(type="submit") Logout

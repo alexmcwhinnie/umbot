@@ -1,5 +1,9 @@
 extends base
 
+block vars
+  - var title = 'Welcome to Umbot'
+  - var bodytag = 'home'
+
 block body
 
   div.content
@@ -13,10 +17,12 @@ block body
 
       p#status
       br
-      p= _summary
 
-      canvas#icon
-
+      div#weather
+        p= _summary
+        canvas(width='64px' height='64')#icon
+        div#temperature-wrapper= _temp +"F"
+  
       - var weatherIcon = "Skycons." + _icon
 
       script.

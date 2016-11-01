@@ -112,7 +112,7 @@ block body
                   input.form-control(placeholder='Password', required=true, type='password', name='password')
 
               div
-                button.login.btn.btn-login.btn-sp-green(type='submit') Log In
+                button.login(type='submit') Log In
 
           if hasSocialProviders
             .social-area.col-xs-12.col-sm-4
@@ -126,6 +126,7 @@ block body
         if stormpathConfig.web.verifyEmail.enabled
           a.forgot(style="float:left", href="#{stormpathConfig.web.verifyEmail.uri}") Resend Verification Email?
         if stormpathConfig.web.forgotPassword.enabled
-          a.forgot(style="float:right", href="#{stormpathConfig.web.forgotPassword.uri}") Forgot Password?
+          a.forgot(style="float:right", href=stormpathConfig.web.forgotPassword.uri) Forgot Password?
+
 
       
